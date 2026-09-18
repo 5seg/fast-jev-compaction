@@ -15,12 +15,30 @@
   },
   "files": [
     "dist",
+    "src",
+    "mod.ts",
+    "types",
     "README.md",
     "LICENSE"
   ],
+  "keywords": [
+    "commandcode",
+    "command-code",
+    "mod",
+    "compaction",
+    "jev",
+    "typesafe",
+    "context-compaction",
+    "claude-code"
+  ],
+  "commandcode": {
+    "mods": [
+      "./mod.ts"
+    ]
+  },
   "scripts": {
     "build": "tsc",
-    "typecheck": "tsc --noEmit && npm run typecheck:hooks",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.mod.json && npm run typecheck:hooks",
     "test": "vitest run",
     "demo": "tsx examples/demo.ts",
     "typecheck:hooks": "tsc -p tsconfig.hooks.json",

@@ -162,6 +162,58 @@ To run from a checkout without installing: `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1 
 from the repository root. No publishing step is required; the marketplace is
 just the repo's `.claude-plugin/marketplace.json`.
 
+## Command Code mod
+
+This repository is also packaged as a mod for [Command Code](https://commandcode.ai) (`cmd`).
+It uses TypeSafe.ai's System One endpoint (`jev-latest`) to continuously prune tool calls and results
+verbatim before context is sent to the model, avoiding lossy summarization.
+
+### Install in Command Code
+
+Install globally via `cmd`:
+
+```sh
+cmd mods add -g 5seg/fast-jev-compaction
+```
+
+Or run from a local checkout without installing:
+
+```sh
+cmd --mod ./mod.ts
+```
+
+### Environment variables
+
+Set your TypeSafe API key in your shell or `.env`:
+
+```sh
+export TYPESAFE_API_KEY="<your-typesafe-api-key>"
+```
+
+### Mod Options & Flags
+
+Options can be set via `--mod-option name=value`:
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `apiKey` | `TYPESAFE_API_KEY` | TypeSafe API key |
+| `model` | `jev-latest` | Jev model name |
+| `baseUrl` | `https://api.typesafe.ai/v1/systemone` | TypeSafe System One endpoint |
+| `contextTokens` | `200000` | Model context window limit in tokens |
+| `compactAtPercent` | `45` | Trigger compaction when context reaches this percentage |
+| `keepThreshold` | `0.5` | Keep threshold probability (0..1) |
+| `preserveRecentMessages` | `6` | Pinned recent messages never touched |
+| `maxStateTokens` | `25000` | Token limit for state sent to Jev |
+| `maxRequestTokens` | `30000` | Max tokens per question request batch |
+| `truncateHeadChars` | `300` | Head characters retained when result dropped |
+
+### How it interacts with Command Code compaction
+
+Command Code has a built-in compaction mod that triggers summarization at 90% context limit (or tiered pruning in `fast` mode at 50%/80%).
+`fast-jev-compaction` triggers earlier (default `45%`), keeping the history verbatim so the built-in summarization does not need to fire. If a built-in summary has already run (`meta.isSummary`), the mod detects it and backs off safely.
+
+Inside a `cmd` session, run `/jev-status` to inspect current context token usage, configuration, and the latest Jev compaction stats.
+
 ## Development
 
 ```sh
